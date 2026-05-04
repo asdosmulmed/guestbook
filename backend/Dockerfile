@@ -41,6 +41,8 @@ RUN composer install --no-scripts --no-autoloader --no-interaction
 
 COPY . .
 
+RUN mkdir -p bootstrap/cache
+
 RUN composer dump-autoload --optimize
 
 # ─── Fix Permissions ──────────────────────────────────────────────────────────
