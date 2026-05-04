@@ -1,0 +1,52 @@
+@import "tailwindcss";
+
+@theme {
+  --color-midnight: #F3F4F6; /* Light gray background */
+  --color-champagne: #2563EB; /* Professional Blue */
+  --color-ivory: #111827; /* Dark slate text */
+  --font-serif: "Inter", sans-serif;
+  --font-sans: "Inter", sans-serif;
+}
+
+@layer base {
+  body {
+    @apply font-sans bg-midnight text-ivory antialiased min-h-screen relative overflow-x-hidden;
+    background-color: #F3F4F6;
+  }
+
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-sans font-bold tracking-tight;
+  }
+
+  /* Custom minimal scrollbar */
+  ::-webkit-scrollbar {
+    width: 6px;
+  }
+  ::-webkit-scrollbar-track {
+    @apply bg-slate-200 rounded-full;
+  }
+  ::-webkit-scrollbar-thumb {
+    @apply bg-slate-400 rounded-full;
+  }
+  ::-webkit-scrollbar-thumb:hover {
+    @apply bg-slate-500;
+  }
+}
+
+@layer components {
+  .glass-panel {
+    @apply bg-white border border-slate-200 shadow-sm rounded-2xl;
+  }
+  
+  .glass-input {
+    @apply w-full bg-white border border-slate-300 rounded-xl px-4 py-3 text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all;
+  }
+  
+  .btn-primary {
+    @apply bg-champagne text-white font-medium px-6 py-3 rounded-xl shadow-sm hover:bg-blue-700 hover:shadow-md transition-all duration-300;
+  }
+
+  .btn-outline {
+    @apply border border-slate-300 text-slate-700 font-medium px-6 py-3 rounded-xl hover:bg-slate-50 transition-all duration-300 bg-white;
+  }
+}

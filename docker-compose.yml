@@ -1,0 +1,109 @@
+services:
+  # ─────────────────────────────────────────
+  # 🐬 MySQL 8.0 Database
+  # ─────────────────────────────────────────
+  mysql:
+    image: mysql:8.0
+    container_name: buku_tamu_mysql
+    restart: unless-stopped
+    command: --default-authentication-plugin=mysql_native_password
+    environment:
+      MYSQL_ROOT_PASSWORD: admin123
+      MYSQL_DATABASE: buku_tamu_digital
+      MYSQL_USER: buku_tamu_user
+      MYSQL_PASSWORD: admin123
+    ports:
+      - "3306:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+    networks:
+      - buku_tamu_network
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-padmin123"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+  # ─────────────────────────────────────────
+  # ⚙️  Laravel Backend (PHP 8.2 + Apache)
+  # ─────────────────────────────────────────
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: buku_tamu_backend
+    restart: unless-stopped
+    ports:
+      - "8000:80"
+    volumes:
+      - ./backend:/var/www/html
+      - /var/www/html/vendor   # Anonymous volume agar vendor di container tidak di-overwrite
+    environment:
+      APP_ENV: local
+      APP_DEBUG: "true"
+      APP_URL: http://localhost:8000
+      DB_CONNECTION: mysql
+      DB_HOST: mysql
+      DB_PORT: 3306
+      DB_DATABASE: buku_tamu_digital
+      DB_USERNAME: root
+      DB_PASSWORD: admin123
+      SESSION_DRIVER: database
+      CACHE_STORE: database
+      QUEUE_CONNECTION: database
+    depends_on:
+      mysql:
+        condition: service_healthy
+    networks:
+      - buku_tamu_network
+
+  # ─────────────────────────────────────────
+  # ⚛️  React Frontend (Node 20 + Vite)
+  # ─────────────────────────────────────────
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: buku_tamu_frontend
+    restart: unless-stopped
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend/src:/app/src          # Hot-reload source files
+      - ./frontend/public:/app/public
+    environment:
+      VITE_API_URL: http://localhost:8000
+    depends_on:
+      - backend
+    networks:
+      - buku_tamu_network
+
+  # ─────────────────────────────────────────
+  # 🗄️  phpMyAdmin
+  # ─────────────────────────────────────────
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: buku_tamu_phpmyadmin
+    restart: unless-stopped
+    ports:
+      - "8080:80"
+    environment:
+      PMA_HOST: mysql
+      PMA_USER: root
+      PMA_PASSWORD: admin123
+    depends_on:
+      - mysql
+    networks:
+      - buku_tamu_network
+
+# ─────────────────────────────────────────
+# 📦 Volumes & Networks
+# ─────────────────────────────────────────
+volumes:
+  mysql_data:
+    driver: local
+
+networks:
+  buku_tamu_network:
+    driver: bridge
