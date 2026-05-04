@@ -45,6 +45,9 @@ RUN mkdir -p bootstrap/cache
 
 RUN composer dump-autoload --optimize
 
+# ─── Create Laravel Storage Directories ───────────────────────────────────────
+RUN mkdir -p storage/logs storage/framework/cache storage/framework/sessions storage/framework/views storage/app/public
+
 # ─── Fix Permissions ──────────────────────────────────────────────────────────
 RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache \
     && chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
